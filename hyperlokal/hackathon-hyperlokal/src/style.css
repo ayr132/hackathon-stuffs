@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-optical-sizing: auto;
+  }
+
+  html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background: #f7f8fa;
+    font-family: var(--font-sans);
+  }
+
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid rgb(13 148 136 / 45%);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: #ccfbf1;
+    color: #134e4a;
+  }
+}
+
+@layer components {
+  #app {
+    min-height: 100vh;
+  }
+
+  header.sticky {
+    backdrop-filter: blur(16px);
+  }
+
+  main h1 {
+    letter-spacing: -0.04em;
+  }
+
+  main section.rounded-2xl {
+    border-color: rgb(226 232 240 / 85%);
+    box-shadow: 0 12px 32px rgb(15 23 42 / 4%);
+  }
+
+  main article.rounded-xl {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  main article.rounded-xl:hover {
+    transform: translateY(-2px);
+    border-color: #99f6e4;
+    box-shadow: 0 12px 24px rgb(15 23 42 / 8%);
+  }
+
+  main input,
+  main textarea {
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
