@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { ChevronDown, Clock3, MapPin, RotateCcw } from '@lucide/vue'
-import { EFFECT_LABELS, REPORT_STATUS, REPORT_TYPES } from '../data/reportTypes'
+import { EFFECT_LABELS, REPORT_AGENCIES, REPORT_STATUS, REPORT_TYPES } from '../data/reportTypes'
 import { pathsById } from '../services/routingService'
 import { formatDate } from '../utils/formatDate'
 
@@ -45,6 +45,7 @@ const pathName = (report) => pathsById.get(report.pathId)?.name || report.pathId
         <div v-if="openId === report.id" class="update-detail">
           <p v-if="report.description">{{ report.description }}</p>
           <p v-else class="muted">No extra details were added.</p>
+          <p v-if="report.agency" class="muted">Selected referral: {{ REPORT_AGENCIES[report.agency] || report.agency }}</p>
           <img v-if="report.photos?.[0]" :src="report.photos[0]" alt="Photo attached to this report" />
           <dl>
             <div><dt>Effect on routes</dt><dd>{{ EFFECT_LABELS[REPORT_TYPES[report.type]?.effect] }}</dd></div>

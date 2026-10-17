@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import L from 'leaflet'
 import { Info, LocateFixed, Minus, Plus } from '@lucide/vue'
 import { CAMPUS_BOUNDS, CAMPUS_CENTER, DEFAULT_ZOOM, LOCATION_TYPES, MIN_ZOOM } from '../data/campusLocations'
-import { blockReason } from '../services/routingService'
+import { blockReason, MAX_SNAP_METRES } from '../services/routingService'
 
 const props = defineProps({
   locations: { type: Array, required: true },
@@ -37,6 +37,10 @@ function pathState(path) {
   return path.available === false || restriction?.blocksAll ? 'closed' : 'limited'
 }
 
+function routeExplanation(location) {
+  return `The nearest mapped walking-network point is about ${Math.round(location.snapMetres)} m away, beyond the ${MAX_SNAP_METRES} m connection limit. This may reflect inaccessible infrastructure, a natural barrier, or paths not yet mapped.`
+}
+
 function popupContent(location) {
   const type = LOCATION_TYPES[location.type]
   const root = document.createElement('div')
@@ -50,20 +54,38 @@ function popupContent(location) {
     const note = document.createElement('em')
     note.textContent = 'Not on the walking network yet'
     root.append(note)
-    return root
+  } else {
+    const actions = document.createElement('div')
+    for (const [label, event] of [['Start here', 'set-origin'], ['Go here', 'set-destination']]) {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.textContent = label
+      button.addEventListener('click', () => {
+        emit(event, location.id)
+        map?.closePopup()
+      })
+      actions.append(button)
+    }
+    root.append(actions)
   }
-  const actions = document.createElement('div')
-  for (const [label, event] of [['Start here', 'set-origin'], ['Go here', 'set-destination']]) {
-    const button = document.createElement('button')
-    button.type = 'button'
-    button.textContent = label
-    button.addEventListener('click', () => {
-      emit(event, location.id)
-      map?.closePopup()
+
+  if (!location.connected) {
+    const why = document.createElement('a')
+    why.href = '#'
+    why.className = 'loc-popup__why'
+    why.textContent = 'See why'
+    why.setAttribute('aria-expanded', 'false')
+    const explanation = document.createElement('p')
+    explanation.className = 'loc-popup__explanation'
+    explanation.hidden = true
+    explanation.textContent = routeExplanation(location)
+    why.addEventListener('click', (event) => {
+      event.preventDefault()
+      explanation.hidden = !explanation.hidden
+      why.setAttribute('aria-expanded', String(!explanation.hidden))
     })
-    actions.append(button)
+    root.append(why, explanation)
   }
-  root.append(actions)
   return root
 }
 

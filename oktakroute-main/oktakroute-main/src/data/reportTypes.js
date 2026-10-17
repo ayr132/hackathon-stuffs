@@ -11,7 +11,13 @@ export const REPORT_TYPES = {
   ramp: { label: 'Damaged / unavailable ramp', icon: '♿', effect: 'blocks-wheelchair' },
   stairs: { label: 'Stairs or unexpected steps', icon: '🪜', effect: 'blocks-wheelchair' },
   obstruction: { label: 'Obstruction', icon: '🌳', effect: 'blocks-all' },
+  vehicle: { label: 'Blocked by vehicle', icon: '🚗', effect: 'blocks-all' },
   other: { label: 'Other', icon: '⚠️', effect: 'none' },
+};
+
+export const REPORT_AGENCIES = {
+  jpj: 'Jabatan Pengangkutan Jalan Raya (JPJ)',
+  pdrm: 'Polis Diraja Malaysia (PDRM)',
 };
 
 export const EFFECT_LABELS = {

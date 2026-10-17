@@ -4,8 +4,9 @@
 create table if not exists public.path_reports (
   id uuid primary key,
   path_id text not null,
-  type text not null check (type in ('maintenance', 'blocked', 'damaged', 'ramp', 'stairs', 'obstruction', 'other')),
+  type text not null check (type in ('maintenance', 'blocked', 'damaged', 'ramp', 'stairs', 'obstruction', 'vehicle', 'other')),
   description text not null default '',
+  agency text check (agency in ('jpj', 'pdrm')),
   status text not null default 'active' check (status in ('active', 'resolved', 'expired')),
   reported_at timestamptz not null default now(),
   expires_at timestamptz,
@@ -15,6 +16,18 @@ create table if not exists public.path_reports (
   confirmations integer not null default 0,
   photos jsonb not null default '[]'::jsonb
 );
+
+alter table public.path_reports
+  drop constraint if exists path_reports_type_check;
+alter table public.path_reports
+  add constraint path_reports_type_check
+  check (type in ('maintenance', 'blocked', 'damaged', 'ramp', 'stairs', 'obstruction', 'vehicle', 'other'));
+alter table public.path_reports add column if not exists agency text;
+alter table public.path_reports
+  drop constraint if exists path_reports_agency_check;
+alter table public.path_reports
+  add constraint path_reports_agency_check
+  check (agency is null or agency in ('jpj', 'pdrm'));
 
 alter table public.path_reports enable row level security;
 

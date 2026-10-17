@@ -33,13 +33,14 @@ export function saveReports(reports) {
   }
 }
 
-export function createReport({ pathId, type, description = '', durationHours = null, photos = [] }) {
+export function createReport({ pathId, type, description = '', durationHours = null, photos = [], agency = null }) {
   const reportedAt = new Date()
   return {
     id: crypto.randomUUID(),
     pathId,
     type,
     description: description.trim(),
+    agency,
     status: 'active',
     reportedAt: reportedAt.toISOString(),
     expiresAt: durationHours ? new Date(reportedAt.getTime() + durationHours * 3600000).toISOString() : null,

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { Check, ImagePlus, LoaderCircle } from '@lucide/vue'
-import { EFFECT_LABELS, REPORT_TYPES } from '../data/reportTypes'
+import { EFFECT_LABELS, REPORT_AGENCIES, REPORT_TYPES } from '../data/reportTypes'
 import MapView from '../components/MapView.vue'
 import { createReport, DURATION_OPTIONS } from '../services/reportService'
 import mpsLogo from '../assets/mps-logo.png'
@@ -24,6 +24,7 @@ const routeTitle = computed(() => {
   return `Route: ${displayName(origin)} to ${displayName(destination)}`
 })
 const type = ref('')
+const agency = ref('')
 const description = ref('')
 const durationHours = ref(24)
 const photo = ref(null)
@@ -33,6 +34,11 @@ const isPreparing = ref(false)
 
 const needsDescription = computed(() => type.value === 'other')
 const canSubmit = computed(() => Boolean(pathId.value && type.value) && (!needsDescription.value || description.value.trim().length > 0))
+
+function chooseType(key) {
+  type.value = key
+  if (key !== 'vehicle') agency.value = ''
+}
 
 function choosePhoto(event) {
   const file = event.target.files?.[0]
@@ -70,7 +76,14 @@ async function submit() {
       bitmap.close()
       photos.push(canvas.toDataURL('image/jpeg', 0.7))
     }
-    emit('submit', createReport({ pathId: pathId.value, type: type.value, description: description.value, durationHours: durationHours.value, photos }))
+    emit('submit', createReport({
+      pathId: pathId.value,
+      type: type.value,
+      description: description.value,
+      durationHours: durationHours.value,
+      photos,
+      agency: type.value === 'vehicle' ? agency.value || null : null,
+    }))
   } catch (failure) {
     console.error('Could not prepare the selected report photo.', failure)
     error.value = 'This image could not be prepared. Try another photo.'
@@ -119,7 +132,7 @@ async function submit() {
       <fieldset class="form-step">
         <legend class="form-label">What's the problem?</legend>
         <div class="type-grid">
-          <button v-for="(info, key) in REPORT_TYPES" :key="key" type="button" :class="{ selected: type === key }" :aria-pressed="type === key" @click="type = key">
+          <button v-for="(info, key) in REPORT_TYPES" :key="key" type="button" :class="{ selected: type === key }" :aria-pressed="type === key" @click="chooseType(key)">
             <span class="type-icon" aria-hidden="true">{{ info.icon }}</span>
             <strong>{{ info.label }}</strong>
             <small>{{ EFFECT_LABELS[info.effect] }}</small>
@@ -131,6 +144,15 @@ async function submit() {
         <label class="form-label" for="report-description">Details <span v-if="!needsDescription">(optional)</span></label>
         <textarea id="report-description" v-model="description" rows="3" maxlength="280" placeholder="e.g. Ramp rail is loose near the entrance." :required="needsDescription"></textarea>
       </section>
+
+      <fieldset v-if="type === 'vehicle'" class="form-step agency-choice">
+        <legend class="form-label">Choose an agency to refer this report to (optional)</legend>
+        <label v-for="(label, key) in REPORT_AGENCIES" :key="key" class="agency-choice__option">
+          <input v-model="agency" type="radio" name="report-agency" :value="key" />
+          <span>{{ label }}</span>
+        </label>
+        <p class="hint">Your selection is saved with the community report; this app does not send it to the agency.</p>
+      </fieldset>
 
       <section class="form-step form-split">
         <div>

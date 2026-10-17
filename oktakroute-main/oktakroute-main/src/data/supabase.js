@@ -9,7 +9,7 @@ export const supabaseConfigError = Boolean(url) !== Boolean(anonKey)
 
 export const supabase = url && anonKey ? createClient(url, anonKey) : null
 
-const COLUMNS = 'id,path_id,type,description,status,reported_at,expires_at,resolved_at,reported_by,verification,confirmations,photos'
+const COLUMNS = 'id,path_id,type,description,agency,status,reported_at,expires_at,resolved_at,reported_by,verification,confirmations,photos'
 
 function fromRow(row) {
   return {
@@ -17,6 +17,7 @@ function fromRow(row) {
     pathId: row.path_id,
     type: row.type,
     description: row.description,
+    agency: row.agency,
     status: row.status,
     reportedAt: row.reported_at,
     expiresAt: row.expires_at,
@@ -34,6 +35,7 @@ function toRow(report) {
     path_id: report.pathId,
     type: report.type,
     description: report.description,
+    agency: report.agency || null,
     status: report.status,
     reported_at: report.reportedAt,
     expires_at: report.expiresAt,
